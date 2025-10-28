@@ -5,6 +5,7 @@ import OrderCard, { OrderSummary } from "@/components/orders/order-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertTriangle, Loader2, RefreshCw } from "lucide-react";
+import { toast } from "sonner";
 
 export default function OrderList() {
     const [orders, setOrders] = useState<OrderSummary[]>([]);
@@ -20,6 +21,12 @@ export default function OrderList() {
         status: OrderStatus;
         createdAt: string;
         delivered: boolean;
+        items: Array<{
+            id: string;
+            quantity: number;
+            priceAtPurchase: number;
+            product: { id: string; productName: string; imageUrl: string };
+        }>;
     };
 
     const fetchOrders = useCallback(async () => {
@@ -36,6 +43,12 @@ export default function OrderList() {
                 status: o.status,
                 createdAt: o.createdAt,
                 delivered: o.delivered,
+                items: o.items?.map((it) => ({
+                    id: it.id,
+                    quantity: it.quantity,
+                    productName: it.product.productName,
+                    imageUrl: it.product.imageUrl,
+                })) ?? [],
             }));
             setOrders(list);
         } catch (err: unknown) {
@@ -70,6 +83,7 @@ export default function OrderList() {
             const text = await res.text();
             throw new Error(text || "Failed to cancel order");
         }
+        toast.success("Order cancelled");
     }, [fetchOrders]);
 
     const handleDelete = useCallback(async (orderId: string) => {
@@ -83,6 +97,7 @@ export default function OrderList() {
             const text = await res.text();
             throw new Error(text || "Failed to delete order");
         }
+        toast.success("Order deleted");
     }, [orders]);
 
     if (isLoading) {

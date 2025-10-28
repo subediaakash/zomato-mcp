@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "bunx drizzle-kit push && bun run drizzle/src/seed-products.ts && next build",
     "start": "next start",
     "lint": "eslint"
   },
@@ -21,6 +21,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "framer-motion": "^12.23.24",
+    "highlight.js": "^11.11.1",
     "lucide-react": "^0.548.0",
     "next": "16.0.0",
     "pg": "^8.16.3",
@@ -28,6 +29,10 @@
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "react-icons": "^5.5.0",
+    "react-markdown": "^10.1.0",
+    "rehype-highlight": "^7.0.2",
+    "remark-gfm": "^4.0.1",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "tsx": "^4.20.6",
     "zod": "^4.1.12"

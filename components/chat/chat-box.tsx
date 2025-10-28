@@ -1,6 +1,10 @@
 'use client';
 
 import { useMemo, useRef, useState, useEffect } from 'react';
+import type { HTMLAttributes, ReactNode } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
 import { useChat } from '@ai-sdk/react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -35,13 +39,13 @@ export default function ChatBox({
 
   const containerHeights = useMemo(() => {
     // Default to a compact, responsive panel if no explicit height class is provided
-    return heightClassName ?? 'h-[380px] sm:h-[420px] md:h-[480px]';
+    return heightClassName ?? 'h-[300px] sm:h-[340px] md:h-[420px]';
   }, [heightClassName]);
 
   return (
     <Card
       className={[
-        'w-full rounded-2xl border shadow-md overflow-hidden bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60',
+        'w-full rounded-2xl border shadow-md overflow-hidden bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60 max-h-[85svh] sm:max-h-[80svh]',
         className ?? '',
       ].join(' ')}
       aria-label="Chat assistant panel"
@@ -75,28 +79,80 @@ export default function ChatBox({
 
             {messages.map((message) => {
               const isUser = message.role === 'user';
+              const content = message.parts
+                .map((part) => (part.type === 'text' ? part.text : ''))
+                .join('');
               return (
                 <div key={message.id} className={isUser ? 'ml-auto max-w-[85%]' : 'mr-auto max-w-[85%]'}>
                   <div className={[
                     'rounded-2xl px-4 py-2 text-sm leading-relaxed',
                     isUser ? 'bg-red-500 text-white' : 'bg-muted text-foreground',
                   ].join(' ')}>
-                    {message.parts.map((part, idx) => {
-                      if (part.type === 'text') {
-                        return (
-                          <div key={`${message.id}-${idx}`} className="whitespace-pre-wrap">
-                            {part.text}
-                          </div>
-                        );
-                      }
-                      return null;
-                    })}
+                    {isUser ? (
+                      <div className="whitespace-pre-wrap">{content}</div>
+                    ) : (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          h1: (props) => <h1 {...props} className="mb-2 text-base font-semibold" />,
+                          h2: (props) => <h2 {...props} className="mb-2 text-sm font-semibold" />,
+                          h3: (props) => <h3 {...props} className="mb-2 text-sm font-medium" />,
+                          p: (props) => <p {...props} className="mb-2 leading-relaxed" />,
+                          a: (props) => (
+                            <a
+                              {...props}
+                              className="text-red-600 underline underline-offset-2 hover:opacity-80"
+                              target="_blank"
+                              rel="noreferrer noopener"
+                            />
+                          ),
+                          ul: (props) => <ul {...props} className="mb-2 ml-5 list-disc space-y-1" />,
+                          ol: (props) => <ol {...props} className="mb-2 ml-5 list-decimal space-y-1" />,
+                          li: (props) => <li {...props} className="leading-relaxed" />,
+                          blockquote: (props) => (
+                            <blockquote
+                              {...props}
+                              className="mb-2 border-l-2 border-border/60 pl-3 text-muted-foreground"
+                            />
+                          ),
+                          code: ({
+                            inline,
+                            className,
+                            children,
+                            ...rest
+                          }: { inline?: boolean; className?: string; children?: ReactNode } & HTMLAttributes<HTMLElement>) => {
+                            if (inline) {
+                              return (
+                                <code
+                                  {...rest}
+                                  className={[
+                                    'rounded bg-background/70 px-1 py-0.5 text-[12px] shadow-xs',
+                                    className || '',
+                                  ].join(' ')}
+                                >
+                                  {children}
+                                </code>
+                              );
+                            }
+                            return (
+                              <pre className="mb-2 overflow-x-auto rounded-xl border bg-black/90 p-3 text-[12px] text-white">
+                                <code className={[className || '', 'hljs'].join(' ')} {...rest}>
+                                  {children}
+                                </code>
+                              </pre>
+                            );
+                          },
+                        }}
+                      >
+                        {content}
+                      </ReactMarkdown>
+                    )}
                   </div>
                 </div>
               );
             })}
 
-            {/* Error bubble intentionally omitted to keep API-light; rely on server fallbacks */}
           </div>
         </div>
       </div>
