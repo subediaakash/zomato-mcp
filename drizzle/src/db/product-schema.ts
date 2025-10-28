@@ -7,6 +7,8 @@ export const categoryEnum = pgEnum("category", ["VEG", "NON_VEG"]);
 export const product = pgTable("product", {
     id: text("id").primaryKey(),
     productName: text("product_name").notNull(),
+    imageUrl: text("imageUrl").notNull(),
+    description: text("description").notNull(),
     category: categoryEnum("category").notNull(),
     price: real("price").default(10.1).notNull(),
     listerId: text("lister_id")
