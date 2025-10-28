@@ -5,7 +5,8 @@ import ProductCard from "@/components/product/product-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, MessageCircle, X } from "lucide-react";
+import ChatBox from "@/components/chat/chat-box";
 
 type Product = {
   id: string;
@@ -26,6 +27,7 @@ export default function Home() {
   const [query, setQuery] = useState<string>("");
   const [category, setCategory] = useState<"ALL" | "VEG" | "NON_VEG">("ALL");
   const [sort, setSort] = useState<"RELEVANCE" | "PRICE_ASC" | "PRICE_DESC">("RELEVANCE");
+  const [isChatOpen, setIsChatOpen] = useState<boolean>(false);
 
   useEffect(() => {
     let isActive = true;
@@ -153,6 +155,35 @@ export default function Home() {
           category={category}
           sort={sort}
         />
+      )}
+
+      {/* Floating Chat Trigger */}
+      <div className="fixed bottom-6 right-6 z-40">
+        <Button
+          className="rounded-full h-12 w-12 p-0 bg-red-500 hover:bg-red-600 shadow-lg"
+          onClick={() => setIsChatOpen(true)}
+          aria-label="Open chat"
+        >
+          <MessageCircle className="h-5 w-5" />
+        </Button>
+      </div>
+
+      {/* Chat Popup */}
+      {isChatOpen && (
+        <div
+          className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4"
+          onClick={() => setIsChatOpen(false)}
+          aria-label="Chat overlay"
+        >
+          <div className="relative w-full max-w-lg" onClick={(e) => e.stopPropagation()}>
+            <div className="absolute -top-12 right-0 flex items-center gap-2">
+              <Button variant="outline" size="icon" onClick={() => setIsChatOpen(false)} aria-label="Close chat">
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <ChatBox className="w-full" heightClassName="h-[70vh] sm:h-[65vh]" title="Assistant" />
+          </div>
+        </div>
       )}
     </main>
   );
