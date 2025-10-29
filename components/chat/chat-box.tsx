@@ -45,7 +45,7 @@ export default function ChatBox({
   return (
     <Card
       className={[
-        'w-full rounded-2xl border shadow-md overflow-hidden bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60 max-h-[85svh] sm:max-h-[80svh]',
+        'w-full rounded-2xl border shadow-md overflow-hidden bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60',
         className ?? '',
       ].join(' ')}
       aria-label="Chat assistant panel"
